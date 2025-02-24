@@ -1,5 +1,4 @@
-# Stage 1 - Build the application
-FROM node:18-bullseye-slim AS builder
+FROM node:20-bullseye-slim AS builder
 
 WORKDIR /app
 
@@ -9,40 +8,42 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy package files
-COPY package.json ./
+COPY package.json yarn.lock ./
 
-# Install dependencies and generate lockfile
-RUN yarn install
+# Install dependencies
+RUN yarn install --frozen-lockfile
 
 # Copy the rest of the application
 COPY . .
 
-# Build
-RUN yarn tsc && \
-    yarn build
+# Build both frontend and backend
+RUN yarn tsc
+RUN yarn build:backend
+RUN yarn build
 
-# Stage 2 - Create the production image
-FROM node:18-bullseye-slim
+# Stage 2 - Production image
+FROM node:20-bullseye-slim
+
+WORKDIR /app
 
 # Install runtime dependencies
 RUN apt-get update && \
     apt-get install -y libsqlite3-dev python3 curl && \
     rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
-
-# Copy the compiled production files
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package.json ./
+# Copy built application
+COPY --from=builder /app/packages/backend/dist ./dist
+COPY --from=builder /app/packages/backend/package.json ./
 COPY --from=builder /app/yarn.lock ./
 COPY --from=builder /app/app-config.yaml ./
+COPY --from=builder /app/packages/app/dist ./dist/packages/app/dist
 
 # Install production dependencies
-RUN yarn install --production
+RUN yarn install --frozen-lockfile --production
 
-# The fix-permissions script is needed to ensure correct file permissions
+# Fix permissions
 RUN chmod -R 755 /app
 
 EXPOSE 3000
 
-CMD ["node", "dist/index.js", "--config", "app-config.yaml"] 
+CMD ["node", "dist/index.js"] 

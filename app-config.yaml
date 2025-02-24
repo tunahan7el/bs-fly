@@ -1,16 +1,16 @@
 app:
   title: Backstage
-  baseUrl: http://localhost:8080
+  baseUrl: http://localhost:3000
 
 organization:
   name: My Company
 
 backend:
-  baseUrl: http://localhost:8080
+  baseUrl: http://localhost:7007
   listen:
-    port: 3000
+    port: 7007
   cors:
-    origin: http://localhost:8080
+    origin: http://localhost:3000
     methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
     credentials: true
   database:
@@ -26,9 +26,12 @@ backend:
   auth:
     keys:
       - secret: ${BACKEND_SECRET}
-  reading:
-    allow:
-      - host: localhost:8080
+
+frontend:
+  baseUrl: http://localhost:3000
+  app:
+    title: Backstage
+    baseUrl: http://localhost:3000
 
 catalog:
   import:
