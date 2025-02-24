@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
-import http from 'http';
+import { Server } from 'http';
 
-async function main() {
+async function main(): Promise<void> {
   // Create an Express app for health checks
   const app = express();
   
@@ -11,10 +11,7 @@ async function main() {
   });
 
   // Create HTTP server
-  const server = http.createServer(app);
-
-  // Start server
-  server.listen(3000, () => {
+  const server: Server = app.listen(3000, () => {
     console.log('Server is running on port 3000');
   });
 
@@ -28,7 +25,7 @@ async function main() {
   });
 }
 
-main().catch(error => {
+main().catch((error: Error) => {
   console.error('Server failed to start up', error);
   process.exit(1);
 }); 
