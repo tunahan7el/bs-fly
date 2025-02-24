@@ -1,0 +1,33 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../base
+
+configMapGenerator:
+  - name: backstage-config
+    behavior: merge
+    literals:
+      - APP_CONFIG_app_baseUrl=http://localhost:8080
+      - APP_CONFIG_backend_baseUrl=http://localhost:8080
+      - POSTGRES_HOST=postgres.default.svc.cluster.local
+
+patchesStrategicMerge:
+  - |-
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: backstage
+    spec:
+      replicas: 2
+      template:
+        spec:
+          containers:
+            - name: backstage
+              resources:
+                requests:
+                  memory: "512Mi"
+                  cpu: "200m"
+                limits:
+                  memory: "1Gi"
+                  cpu: "500m" 

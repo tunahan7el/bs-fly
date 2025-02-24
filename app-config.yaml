@@ -1,0 +1,50 @@
+app:
+  title: Backstage
+  baseUrl: http://localhost:8080
+
+organization:
+  name: My Company
+
+backend:
+  baseUrl: http://localhost:8080
+  listen:
+    port: 3000
+  cors:
+    origin: http://localhost:8080
+    methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+    credentials: true
+  database:
+    client: pg
+    connection:
+      host: ${POSTGRES_HOST}
+      port: ${POSTGRES_PORT}
+      user: ${POSTGRES_USER}
+      password: ${POSTGRES_PASSWORD}
+      database: ${POSTGRES_DB}
+  cache:
+    store: memory
+  auth:
+    keys:
+      - secret: ${BACKEND_SECRET}
+  reading:
+    allow:
+      - host: localhost:8080
+
+catalog:
+  import:
+    entityFilename: catalog-info.yaml
+    pullRequestBranchName: backstage-integration
+  rules:
+    - allow: [Component, System, API, Resource, Location]
+  locations: []
+
+techdocs:
+  builder: 'local'
+  generator:
+    runIn: 'docker'
+  publisher:
+    type: 'local'
+
+auth:
+  environment: development
+  providers: {} 
