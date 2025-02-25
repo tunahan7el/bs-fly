@@ -205,12 +205,3 @@ Common issues and their solutions:
    - Check Ingress Controller logs: `kubectl logs -n ingress-nginx -l app.kubernetes.io/component=controller`
    - If ingress is not working, try applying it manually: `kubectl apply -f config/base/ingress.yaml`
 
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Submit a pull request
-
-## License
-
-MIT License - See LICENSE file for details
