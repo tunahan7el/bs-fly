@@ -3,17 +3,27 @@ kind: Ingress
 metadata:
   name: backstage-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
 spec:
   ingressClassName: nginx
   rules:
   - host: backstage.local
     http:
       paths:
-      - path: /
-        pathType: Prefix
+      - path: /api/(.*)
+        pathType: ImplementationSpecific
         backend:
           service:
             name: backstage
             port:
-              number: 8080 
+              number: 80
+      - path: /(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: backstage
+            port:
+              number: 80 

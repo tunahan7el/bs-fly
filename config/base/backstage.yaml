@@ -21,7 +21,7 @@ spec:
           image: backstage:latest
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 3000
+            - containerPort: 7007
           envFrom:
             - configMapRef:
                 name: backstage-config
@@ -30,7 +30,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /health
-              port: 3000
+              port: 7007
             initialDelaySeconds: 60
             periodSeconds: 10
             timeoutSeconds: 5
@@ -38,7 +38,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /health
-              port: 3000
+              port: 7007
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
@@ -51,8 +51,8 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - port: 8080
-      targetPort: 3000
+    - port: 80
+      targetPort: 7007
       protocol: TCP
   selector:
     app: backstage 

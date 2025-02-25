@@ -21,11 +21,6 @@ backend:
       user: ${POSTGRES_USER}
       password: ${POSTGRES_PASSWORD}
       database: ${POSTGRES_DB}
-  cache:
-    store: memory
-  auth:
-    keys:
-      - secret: ${BACKEND_SECRET}
 
 frontend:
   baseUrl: http://localhost:3000

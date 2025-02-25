@@ -69,7 +69,12 @@ Our deployment solution uses Kind (Kubernetes in Docker) to provide a consistent
    ./scripts/k8s-deploy.sh prod
    ```
 
-5. Add local DNS entry:
+   Note: The script will automatically apply the ingress configuration. If you need to apply it manually:
+   ```bash
+   kubectl apply -f config/base/ingress.yaml
+   ```
+
+5. Add local DNS entry (if not already added by the script):
    ```bash
    echo "127.0.0.1 backstage.local" | sudo tee -a /etc/hosts
    ```
@@ -86,7 +91,7 @@ config/
 │   ├── kustomization.yaml
 │   ├── backstage.yaml
 │   ├── postgres.yaml
-│   ├── ingress.yaml    # Ingress configuration
+│   ├── ingress.yaml    # Ingress configuration (applied separately)
 │   └── backstage-config.yaml
 ├── dev/               # Development environment
 │   └── kustomization.yaml
@@ -151,6 +156,9 @@ kubectl scale deployment backstage --replicas=3
 
 # Delete cluster
 kind delete cluster --name backstage-cluster
+
+# Manually apply ingress (if needed)
+kubectl apply -f config/base/ingress.yaml
 ```
 
 ## Error Handling and Recovery
@@ -195,6 +203,7 @@ Common issues and their solutions:
    - Check Ingress configuration: `kubectl describe ingress backstage-ingress`
    - Ensure ports 80/443 are available on your host
    - Check Ingress Controller logs: `kubectl logs -n ingress-nginx -l app.kubernetes.io/component=controller`
+   - If ingress is not working, try applying it manually: `kubectl apply -f config/base/ingress.yaml`
 
 ## Contributing
 

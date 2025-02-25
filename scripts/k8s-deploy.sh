@@ -30,6 +30,15 @@ echo "🌍 Deploying to $ENV environment..."
 if ! kind get clusters | grep -q "^backstage-cluster$"; then
     echo "🏗️ Creating Kind cluster..."
     kind create cluster --config kind-config.yaml
+    
+    echo "⏳ Installing NGINX Ingress Controller..."
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+    
+    echo "⏳ Waiting for NGINX Ingress Controller to be ready..."
+    kubectl wait --namespace ingress-nginx \
+      --for=condition=ready pod \
+      --selector=app.kubernetes.io/component=controller \
+      --timeout=180s
 else
     echo "✅ Using existing Kind cluster"
 fi
@@ -55,19 +64,23 @@ kubectl wait --for=condition=ready pod -l app=postgres --timeout=300s
 echo "⏳ Waiting for Backstage deployment to be ready..."
 kubectl wait --for=condition=available deployment/backstage --timeout=300s
 
-# Get service URL
-echo "🔍 Getting service URL..."
-echo "✅ Backstage is accessible at http://localhost:8080"
+# Apply ingress configuration separately since it's not in kustomization
+echo "🔧 Applying Ingress configuration..."
+kubectl apply -f config/base/ingress.yaml
+
+# Add local DNS entry if not exists
+if ! grep -q "backstage.local" /etc/hosts; then
+    echo "📝 Adding backstage.local to /etc/hosts..."
+    echo "127.0.0.1 backstage.local" | sudo tee -a /etc/hosts
+fi
 
 echo "✨ Deployment completed successfully!"
-echo "📊 To view logs: kubectl logs -f deployment/backstage"
-echo "🔄 To restart: kubectl rollout restart deployment/backstage"
-echo "🗑️ To delete cluster: kind delete cluster --name backstage-cluster"
-
-# Print additional commands
-echo -e "\n📝 Useful commands:"
+echo "🌐 Access Backstage at: http://backstage.local"
+echo ""
+echo "📊 Useful commands:"
 echo "- View all resources: kubectl get all"
 echo "- View Backstage logs: kubectl logs -f deployment/backstage"
 echo "- View PostgreSQL logs: kubectl logs -f statefulset/postgres"
+echo "- View ingress status: kubectl get ingress"
 echo "- Scale replicas: kubectl scale deployment backstage --replicas=<number>"
 echo "- Switch environment: ./scripts/k8s-deploy.sh [dev|prod]" 
